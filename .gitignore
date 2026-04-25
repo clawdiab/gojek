@@ -36,6 +36,16 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-example/
-
 .idea/
+
+# Captured traffic and tokens (PII)
+gojek_*.json
+all_traffic*.log
+
+# Sensitive files
+.env
+*.apk
+*.xapk
+*.cer
+*.pem
+__pycache__/

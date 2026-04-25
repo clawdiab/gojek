@@ -1,0 +1,25 @@
+{
+  "name": "@mychaelgo/gojek-auth",
+  "version": "1.0.0",
+  "description": "Gojek Authentication SDK for accounts.goto-products.com",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "axios": "^1.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": ["gojek", "auth", "api", "indonesia"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mychaelgo/gojek.git",
+    "directory": "sdk/auth-gojek-node"
+  }
+}

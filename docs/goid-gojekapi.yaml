@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: goid.gojekapi.com
-  version: 1.0.1
+  version: 1.1.0
 servers:
   - url: 'https://goid.gojekapi.com'
     description: GoID server
@@ -64,10 +64,10 @@ paths:
               properties:
                 client_id:
                   type: string
-                  default: 'gojek:consumer:app'
+                  description: OAuth client ID (e.g., 'gojek:consumer:app')
                 client_secret:
                   type: string
-                  default: pGwQ7oi8bKqqwvid09UrjqpkMEHklb
+                  description: OAuth client secret - obtain from APK decompilation or reverse engineering
                 country_code:
                   type: string
                   default: '+62'
@@ -114,10 +114,10 @@ paths:
               properties:
                 client_id:
                   type: string
-                  default: 'gojek:consumer:app'
+                  description: OAuth client ID (e.g., 'gojek:consumer:app')
                 client_secret:
                   type: string
-                  default: pGwQ7oi8bKqqwvid09UrjqpkMEHklb
+                  description: OAuth client secret - obtain from APK decompilation or reverse engineering
                 data:
                   type: object
                   properties:
@@ -157,7 +157,8 @@ components:
       in: header
       schema:
         type: string
-        default: 4.59.1
+        description: App version string (e.g., '4.59.1'). Obtain from latest APK.
+        example: '5.57.2'
     appId:
       name: x-appid
       in: header
@@ -169,7 +170,8 @@ components:
       in: header
       schema:
         type: string
-        default: 'Android,10'
+        description: Device OS info
+        example: 'Android,10'
     userType:
       name: x-user-type
       in: header
@@ -181,13 +183,15 @@ components:
       in: header
       schema:
         type: string
-        default: Samsung
+        description: Phone manufacturer
+        example: Samsung
     phoneModel:
       name: x-phonemodel
       in: header
       schema:
         type: string
-        default: GT-S7500
+        description: Phone model
+        example: GT-S7500
     pushTokenType:
       name: x-pushtokentype
       in: header
@@ -205,4 +209,5 @@ components:
       in: header
       schema:
         type: string
-        default: 95f99ddd6a5d34a9
+        description: Unique device identifier (generate a random hex string)
+        example: 95f99ddd6a5d34a9

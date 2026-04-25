@@ -18,14 +18,17 @@
     "prepare": "npm run build"
   },
   "dependencies": {
-    "axios": "^0.21.4"
+    "axios": "^1.7.2"
   },
   "devDependencies": {
-    "@types/node": "^12.11.5",
-    "typescript": "^3.6.4"
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mychaelgo/gojek.git"
   }
-, "repository": { "type": "git", "url": "git+https://github.com/mychaelgo/gojek.git" }
 }

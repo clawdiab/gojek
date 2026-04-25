@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: api.gojekapi
-  version: 1.0.1
+  version: 1.1.0
 servers:
   - url: 'https://api.gojekapi.com'
     description: api.gojekapi
@@ -577,7 +577,8 @@ components:
       in: header
       schema:
         type: string
-        default: 4.59.1
+        description: App version string (e.g., '4.59.1'). Obtain from latest APK.
+        example: '5.57.2'
     appId:
       name: x-appid
       in: header
@@ -589,7 +590,8 @@ components:
       in: header
       schema:
         type: string
-        default: 'Android,10'
+        description: Device OS info
+        example: 'Android,10'
     userType:
       name: x-user-type
       in: header
@@ -601,13 +603,15 @@ components:
       in: header
       schema:
         type: string
-        default: Samsung
+        description: Phone manufacturer
+        example: Samsung
     phoneModel:
       name: x-phonemodel
       in: header
       schema:
         type: string
-        default: GT-S7500
+        description: Phone model
+        example: GT-S7500
     pushTokenType:
       name: x-pushtokentype
       in: header
@@ -625,13 +629,15 @@ components:
       in: header
       schema:
         type: string
-        default: 95f99ddd6a5d34a9
+        description: Unique device identifier (generate a random hex string)
+        example: 95f99ddd6a5d34a9
     sessionId:
       name: x-session-id
       in: header
       schema:
         type: string
-        default: d31cc210-a067-4d0d-a52f-199880ea8907
+        description: Session ID (generate a UUID)
+        example: d31cc210-a067-4d0d-a52f-199880ea8907
     gojekCountryCode:
       name: gojek-country-code
       in: header
