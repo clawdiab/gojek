@@ -1,14 +1,19 @@
 """
 Mitmproxy addon to capture ALL traffic with verbose logging.
 Captures all auth-related domains including goto-products.com, gopayapi.com, goidentitas.id
+
+WARNING: Captured data may contain PII (phone numbers, emails, tokens).
+Review and redact sensitive data before sharing or committing.
 """
 import json
 import os
+import re
 from datetime import datetime
 from mitmproxy import http
 
-OUTPUT_FILE = os.path.expanduser("~/gojek/gojek_captured_headers.json")
-ALL_LOG = os.path.expanduser("~/gojek/all_traffic.log")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_FILE = os.path.join(SCRIPT_DIR, '..', 'gojek_captured_headers.json')
+ALL_LOG = os.path.join(SCRIPT_DIR, '..', 'all_traffic.log')
 
 # Domains to capture full request/response details
 CAPTURE_DOMAINS = [
@@ -29,7 +34,7 @@ class CaptureAll:
                 self.count = len(self.captured)
                 print(f"[*] Loaded {self.count} existing captures", flush=True)
             except (json.JSONDecodeError, OSError):
-                pass
+                self.captured = {}
         print("[*] Capture addon loaded (all auth domains)!", flush=True)
         
     def _should_capture(self, host):
@@ -50,7 +55,7 @@ class CaptureAll:
             try:
                 body_text = flow.request.content.hex() if flow.request.content else None
             except (AttributeError, UnicodeDecodeError, ValueError):
-                pass
+                body_text = None
         
         with open(ALL_LOG, 'a') as f:
             f.write(f"{datetime.now().isoformat()} {line}")
@@ -63,12 +68,22 @@ class CaptureAll:
         # Capture traffic from relevant domains
         if self._should_capture(host):
             headers = dict(flow.request.headers)
+            
+            # Redact PII from body
+            redacted_body = body_text
+            if redacted_body:
+                redacted_body = re.sub(r'"phone_number"\s*:\s*"\d+"', '"phone_number":"***"', redacted_body)
+                redacted_body = re.sub(r'"otp"\s*:\s*"\d+"', '"otp":"***"', redacted_body)
+                redacted_body = re.sub(r'"otp_token"\s*:\s*"[^"]+"', '"otp_token":"***"', redacted_body)
+                redacted_body = re.sub(r'"client_secret"\s*:\s*"[^"]+"', '"client_secret":"***"', redacted_body)
+                redacted_body = re.sub(r'"email"\s*:\s*"[^"]+"', '"email":"***"', redacted_body)
+            
             entry = {
                 "timestamp": datetime.now().isoformat(),
                 "url": url,
                 "method": flow.request.method,
                 "headers": headers,
-                "body": body_text
+                "body": redacted_body
             }
             
             key = f"{flow.request.method}_{host}_{self.count}"
@@ -93,8 +108,8 @@ class CaptureAll:
             resp_text = None
             try:
                 resp_text = flow.response.text if flow.response and flow.response.text else None
-            except:
-                pass
+            except (AttributeError, UnicodeDecodeError, ValueError):
+                resp_text = None
             
             status = flow.response.status_code if flow.response else None
             

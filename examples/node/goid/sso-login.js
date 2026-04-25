@@ -1,7 +1,7 @@
 /**
  * Gojek Authentication Example - SSO Login
  * 
- * SSO login uses device-based authentication and requires X-M1 header; X-E1 may also be required.
+ * SSO login uses device-based authentication and requires X-M1 header; X-E1 is also likely required.
  * This works if your device is already registered with Gojek.
  * 
  * Usage:
@@ -13,7 +13,9 @@ const { AuthApi, createIOSDeviceConfig } = require('../../../sdk/auth-gojek-node
 
 async function main() {
   const deviceConfig = createIOSDeviceConfig();
-  const auth = new AuthApi(deviceConfig);
+  const clientId = process.env.GOJEK_CLIENT_ID || 'gojek:consumer:app';
+  const clientSecret = process.env.GOJEK_CLIENT_SECRET || '';
+  const auth = new AuthApi(deviceConfig, clientId, clientSecret);
 
   console.log('=== Gojek SSO Login ===\n');
   console.log(`Device ID: ${deviceConfig.uniqueId}`);

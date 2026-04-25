@@ -105,29 +105,26 @@ async function requestOTP(phoneNumber) {
   console.log(`\n[*] Requesting OTP for +62${phoneNumber}...`);
   
   const headers = getHeaders();
-  const body = {
-    client_id: process.env.GOJEK_CLIENT_ID || 'gojek:consumer:app',
-    client_secret: process.env.GOJEK_CLIENT_SECRET || (() => { throw new Error('GOJEK_CLIENT_SECRET env var required'); })(),
+  const clientId = process.env.GOJEK_CLIENT_ID || 'gojek:consumer:app';
+  const clientSecret = process.env.GOJEK_CLIENT_SECRET || (() => { throw new Error('GOJEK_CLIENT_SECRET env var required'); })();
+
+  // Step 1: Get login methods
+  console.log('[*] Step 1: Getting login methods...');
+  const methodsBody = {
+    client_id: clientId,
+    client_secret: clientSecret,
     country_code: '+62',
-    login_type: 'otp_whatsapp',
-    magic_link_ref: '',
+    email: '',
     phone_number: phoneNumber,
   };
 
-  const result = await makeRequest('POST', '/goto-auth/login/methods', body, headers);
-  
-  console.log('\n[*] Response:');
-  console.log(JSON.stringify(result.data, null, 2));
-  
-  if (result.data.success !== false && result.data.data) {
-    const otpToken = result.data.data.otp_token;
-    console.log(`\n[+] OTP sent! Token: ${otpToken}`);
-    console.log(`\n[*] Next step: node tools/gojek_login.js verify ${otpToken} <OTP_CODE>`);
-    return otpToken;
-  } else {
-    console.log('\n[-] OTP request failed');
-    if (result.data.errors) {
-      const err = result.data.errors[0];
+  const methodsResult = await makeRequest('POST', '/goto-auth/login/methods', methodsBody, headers);
+  console.log(JSON.stringify(methodsResult.data, null, 2));
+
+  if (!methodsResult.data.data || !methodsResult.data.data.verification_id) {
+    console.log('\n[-] Failed to get login methods');
+    if (methodsResult.data.errors) {
+      const err = methodsResult.data.errors[0];
       console.log(`    Code: ${err.code}`);
       console.log(`    Message: ${err.message}`);
       if (err.code === 'GoPay-1000') {
@@ -135,36 +132,126 @@ async function requestOTP(phoneNumber) {
         console.log('[!] Please capture headers from a real device first. See tools/PROXY_SETUP.md');
       }
     }
+    return null;
   }
+
+  const verificationId = methodsResult.data.data.verification_id;
+  const methods = methodsResult.data.data.methods || ['otp_sms'];
+  console.log(`\n[+] verification_id: ${verificationId}`);
+  console.log(`[+] Available methods: ${methods.join(', ')}`);
+
+  // Step 2: Initiate OTP via CVS
+  console.log('\n[*] Step 2: Initiating OTP via CVS...');
+  const otpMethod = methods.includes('otp_sms') ? 'otp_sms' : methods[0];
+  const initiateBody = {
+    client_id: clientId,
+    client_secret: clientSecret,
+    flow: 'login_1fa',
+    verification_id: verificationId,
+    verification_method: otpMethod,
+    country_code: '+62',
+    phone_number: phoneNumber,
+  };
+
+  const initiateResult = await makeRequest('POST', '/cvs/v1/initiate', initiateBody, headers);
+  console.log(JSON.stringify(initiateResult.data, null, 2));
+
+  if (!initiateResult.data.data || !initiateResult.data.data.otp_token) {
+    console.log('\n[-] Failed to initiate OTP');
+    return null;
+  }
+
+  const otpToken = initiateResult.data.data.otp_token;
+  const otpLength = initiateResult.data.data.otp_length || 4;
+  console.log(`\n[+] OTP sent! otp_token: ${otpToken}`);
+  console.log(`[+] OTP length: ${otpLength}`);
+  console.log(`\n[*] Next step: node tools/gojek_login.js verify ${verificationId} ${otpToken} <OTP_CODE>`);
+  
+  return { verificationId, otpToken };
 }
 
-async function verifyOTP(otpToken, otpCode) {
-  console.log(`\n[*] Verifying OTP ${otpCode} with token ${otpToken}...`);
+async function verifyOTP(verificationId, otpToken, otpCode) {
+  console.log(`\n[*] Verifying OTP ${otpCode}...`);
   
   const headers = getHeaders();
-  const body = {
-    client_id: process.env.GOJEK_CLIENT_ID || 'gojek:consumer:app',
-    client_secret: process.env.GOJEK_CLIENT_SECRET || (() => { throw new Error('GOJEK_CLIENT_SECRET env var required'); })(),
+  const clientId = process.env.GOJEK_CLIENT_ID || 'gojek:consumer:app';
+  const clientSecret = process.env.GOJEK_CLIENT_SECRET || (() => { throw new Error('GOJEK_CLIENT_SECRET env var required'); })();
+
+  // Step 3: Verify OTP via CVS
+  console.log('[*] Step 3: Verifying OTP via CVS...');
+  const verifyBody = {
+    client_id: clientId,
+    client_secret: clientSecret,
+    flow: 'login_1fa',
+    verification_id: verificationId,
+    verification_method: 'otp_sms',
     data: {
       otp: otpCode,
       otp_token: otpToken,
     },
-    grant_type: 'otp',
+  };
+
+  const verifyResult = await makeRequest('POST', '/cvs/v1/verify', verifyBody, headers);
+  console.log(JSON.stringify(verifyResult.data, null, 2));
+
+  if (!verifyResult.data.data || !verifyResult.data.data.verification_token) {
+    console.log('\n[-] OTP verification failed');
+    return;
+  }
+
+  const verificationToken = verifyResult.data.data.verification_token;
+  console.log(`\n[+] verification_token: ${verificationToken.substring(0, 40)}...`);
+
+  // Step 4: Get account list
+  console.log('\n[*] Step 4: Getting account list...');
+  const accountListBody = {
+    client_id: clientId,
+    client_secret: clientSecret,
+    verification_token: verificationToken,
+  };
+
+  const accountResult = await makeRequest('POST', '/goto-auth/accountlist', accountListBody, headers);
+  console.log(JSON.stringify(accountResult.data, null, 2));
+
+  if (!accountResult.data.data || !accountResult.data.data.account_list) {
+    console.log('\n[-] Failed to get account list');
+    return;
+  }
+
+  const accountList = accountResult.data.data.account_list;
+  const token1fa = accountResult.data.data['1fa_token'];
+  const account = accountList[0];
+  console.log(`\n[+] account_id: ${account.account_id}`);
+
+  // Step 5: Exchange for access token
+  console.log('\n[*] Step 5: Exchanging for access token...');
+  const tokenBody = {
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type: 'cvs',
+    token: token1fa,
+    account_id: account.account_id,
     scopes: [],
   };
 
-  const result = await makeRequest('POST', '/goto-auth/token', body, headers);
-  
-  console.log('\n[*] Response:');
-  console.log(JSON.stringify(result.data, null, 2));
-  
-  if (result.data.access_token) {
+  const tokenResult = await makeRequest('POST', '/goto-auth/token', tokenBody, headers);
+  console.log(JSON.stringify(tokenResult.data, null, 2));
+
+  if (tokenResult.data.data && tokenResult.data.data.access_token) {
     console.log('\n[+] Login successful!');
-    console.log(`    Access Token: ${result.data.access_token.substring(0, 30)}...`);
+    console.log(`    Access Token: ${tokenResult.data.data.access_token.substring(0, 30)}...`);
     
     // Save tokens
-    fs.writeFileSync(TOKENS_FILE, JSON.stringify(result.data, null, 2));
+    fs.writeFileSync(TOKENS_FILE, JSON.stringify(tokenResult.data.data, null, 2));
     console.log(`[+] Tokens saved to ${TOKENS_FILE}`);
+  } else if (tokenResult.data.access_token) {
+    console.log('\n[+] Login successful!');
+    console.log(`    Access Token: ${tokenResult.data.access_token.substring(0, 30)}...`);
+    
+    fs.writeFileSync(TOKENS_FILE, JSON.stringify(tokenResult.data, null, 2));
+    console.log(`[+] Tokens saved to ${TOKENS_FILE}`);
+  } else {
+    console.log('\n[-] Token exchange failed');
   }
 }
 
@@ -181,19 +268,19 @@ switch (command) {
     break;
     
   case 'verify':
-    if (!args[0] || !args[1]) {
-      console.log('Usage: node gojek_login.js verify <otp_token> <otp_code>');
+    if (!args[0] || !args[1] || !args[2]) {
+      console.log('Usage: node gojek_login.js verify <verification_id> <otp_token> <otp_code>');
       process.exit(1);
     }
-    verifyOTP(args[0], args[1]).catch(console.error);
+    verifyOTP(args[0], args[1], args[2]).catch(console.error);
     break;
     
   default:
     console.log('Gojek Login Tool');
     console.log('');
     console.log('Usage:');
-    console.log('  node tools/gojek_login.js request <phone_number>   - Request OTP');
-    console.log('  node tools/gojek_login.js verify <token> <otp>     - Verify OTP & get access token');
+    console.log('  node tools/gojek_login.js request <phone_number>                          - Request OTP (steps 1-2)');
+    console.log('  node tools/gojek_login.js verify <verification_id> <otp_token> <otp>      - Verify OTP & get access token (steps 3-5)');
     console.log('');
     console.log('Environment variables:');
     console.log('  GOJEK_APPCHECK_TOKEN  - Firebase App Check token (from proxy capture)');

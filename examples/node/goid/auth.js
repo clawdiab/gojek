@@ -35,14 +35,14 @@ if (!CLIENT_SECRET) {
 
 // X-E1 captured from mitmproxy — replace with fresh values from your device
 // These expire quickly and are per-request, so you need to capture them fresh
-const CAPTURED_X_E1 = process.env.X_E1 || '';
+const CAPTURED_X_E1 = process.env.GOJEK_X_E1 || '';
 
 async function loginWithOTP() {
   const device = createIOSDeviceConfig();
   const auth = new AuthApi(device, CLIENT_ID, CLIENT_SECRET);
 
   console.log('=== Gojek OTP Login Flow ===\n');
-  console.log(`Phone: +${COUNTRY_CODE}${PHONE_NUMBER}`);
+  console.log(`Phone: ${COUNTRY_CODE}${PHONE_NUMBER}`);
   console.log(`Device UniqueId: ${device.uniqueId}\n`);
 
   // Step 1: Get login methods
@@ -86,7 +86,7 @@ async function loginWithOTP() {
   const otp = process.env.OTP_CODE;
   if (!otp) {
     console.log(`OTP sent! Set OTP_CODE env var and re-run to complete login.`);
-    console.log(`  e.g. OTP_CODE=1234 PHONE_NUMBER=${PHONE_NUMBER} node auth.js`);
+    console.log(`  e.g. OTP_CODE=1234 GOJEK_PHONE_NUMBER=${PHONE_NUMBER} node auth.js`);
     return;
   }
 

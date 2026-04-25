@@ -25,7 +25,7 @@ class GojekHeaderCapture:
             auth_headers = {}
             for key, value in headers.items():
                 key_lower = key.lower()
-                if any(x in key_lower for x in ['x-app', 'x-device', 'x-firebase', 'x-unique', 'x-platform', 'x-user', 'authorization', 'user-agent', 'gojek']):
+                if any(x in key_lower for x in ['x-app', 'x-device', 'x-firebase', 'x-unique', 'x-platform', 'x-user', 'authorization', 'user-agent', 'gojek', 'x-e1', 'x-e2', 'x-e3', 'x-m1']):
                     auth_headers[key] = value
             
             if auth_headers:

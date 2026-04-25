@@ -131,7 +131,7 @@ The iOS app uses a different authentication flow than Android. Key differences:
   "verification_id": "<from login/methods>",
   "client_secret": "<YOUR_CLIENT_SECRET>",
   "flow": "login_1fa",
-  "verification_method": "OTP_SMS",
+  "verification_method": "otp_sms",
   "data": {
     "otp": "1234",
     "otp_token": "<from cvs/initiate>"

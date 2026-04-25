@@ -81,11 +81,11 @@ npm install @mychaelgo/api-gojek
 npm install @mychaelgo/gojek-auth
 ```
 
-You also need `dotenv` for the examples. If you are running them from the repository root, initialize a Node project first:
+You also need `dotenv` for the examples. Install dependencies at the repo root:
 
 ```bash
-npm init -y
-cd examples/node/goid && npm install dotenv
+npm install
+cd sdk/auth-gojek-node && npm run build
 ```
 
 ### Using Go
