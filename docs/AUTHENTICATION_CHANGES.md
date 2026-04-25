@@ -109,7 +109,7 @@ Initiate verification (PIN or OTP).
 ```json
 {
   "data": {
-    "challenge_id": "4e78c613-906a-4077-969d-89cc74ab5660",
+    "challenge_id": "<<uuid>>",
     "fr_token_details": {
       "challenge_token": "",
       "user_token": ""
@@ -124,7 +124,7 @@ Initiate verification (PIN or OTP).
 ```json
 {
   "data": {
-    "otp_token": "a2f5302d-00ed-4cca-b939-841d2fd1b88e",
+    "otp_token": "<<uuid>>",
     "otp_length": 4,
     "retry_timer_in_seconds": [60, 60],
     "metadata": {
@@ -148,7 +148,7 @@ Verify PIN or OTP code.
   "client_secret": "<YOUR_CLIENT_SECRET>",
   "verification_method": "goto_pin",
   "data": {
-    "challenge_id": "4e78c613-906a-4077-969d-89cc74ab5660",
+    "challenge_id": "<<uuid>>",
     "validation_jwt": "eyJ0eX...NiJ9..."
   }
 }
@@ -164,7 +164,7 @@ Verify PIN or OTP code.
   "verification_method": "otp_sms",
   "data": {
     "otp": "1234",
-    "otp_token": "a2f5302d-00ed-4cca-b939-841d2fd1b88e"
+    "otp_token": "<<uuid>>"
   }
 }
 ```
@@ -291,10 +291,10 @@ All requests require these headers:
 | X-Platform | Platform | `iOS` |
 | X-UniqueId | Device UUID | `<DEVICE_UUID>` |
 | X-Session-ID | Session UUID | `<SESSION_UUID>` |
-| X-M1 | Timestamp token | `13:1001,14:1777126222,3:1777119284470-9716321,12:VKEY_DISABLED` |
-| X-E1 | Request signature | `ea9573a051acb3100ab51177766d7fd9...` |
-| X-E2 | Device fingerprint | `C3948F5848C29AB28455A1BFA32A8` |
-| X-E3 | Body MD5 hash | `2f95e9c4262b54b5b0e2f2337eac1bc7` |
+| X-M1 | Timestamp token | `13:1001,14:<<timestamp_s>>,3:<<timestamp_ms>>-<<unique-id-prefix>>,12:VKEY_DISABLED` |
+| X-E1 | Request signature | `<<x-e1-signature>>...` |
+| X-E2 | Device fingerprint | `<<device-fingerprint>>` |
+| X-E3 | Body MD5 hash | `<<md5-hash>>` |
 
 ## X-E1 Signature Header
 
@@ -343,7 +343,7 @@ const xE3 = crypto.createHash('md5').update(JSON.stringify(body)).digest('hex');
 
 **For GET requests:**
 ```
-X-E3: d41d8cd98f00b204e9800998ecf8427e
+X-E3: <<md5-empty-body>>
 ```
 (MD5 of empty string)
 
@@ -358,7 +358,7 @@ The `X-M1` header contains timestamp and device info.
 
 **Example:**
 ```
-3:1777119284470-9716321,12:VKEY_DISABLED,13:1001,14:1777126222
+3:<<timestamp_ms>>-<<unique-id-prefix>>,12:VKEY_DISABLED,13:1001,14:<<timestamp_s>>
 ```
 
 Note: The order of components can vary.

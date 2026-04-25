@@ -167,7 +167,7 @@ The iOS app uses a different authentication flow than Android. Key differences:
 ### Signature Headers (Required for API calls)
 - `X-E1: <per-request-signature>` - Tied to URL path, changes per request
 - `X-E2: <device-fingerprint>` - Static per device
-- `X-E3: <md5-of-request-body>` - For GET: `d41d8cd98f00b204e9800998ecf8427e`
+- `X-E3: <md5-of-request-body>` - For GET: `<<md5-empty-body>>`
 - `X-M1: <key-value-pairs-with-timestamp>`
 
 ### Location Headers (Optional)
