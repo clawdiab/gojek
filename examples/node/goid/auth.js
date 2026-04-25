@@ -22,7 +22,7 @@ const { AuthApi, createIOSDeviceConfig } = require('../../../sdk/auth-gojek-node
 const PHONE_NUMBER = process.env.GOJEK_PHONE_NUMBER;
 const COUNTRY_CODE = process.env.GOJEK_COUNTRY_CODE || '+62';
 const CLIENT_ID = process.env.GOJEK_CLIENT_ID || 'gojek:consumer:app';
-const CLIENT_SECRET=proces...RET;
+const CLIENT_SECRET = process.env.GOJEK_CLIENT_SECRET;
 
 if (!PHONE_NUMBER) {
   console.error('Error: GOJEK_PHONE_NUMBER is required. Set it in .env file.');

@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 const CAPTURED_HEADERS_FILE = path.join(__dirname, '..', 'gojek_captured_headers.json');
-const TOKENS_FILE=path.j...ame, '..', 'gojek_tokens.json');
+const TOKENS_FILE = path.join(__dirname, '..', 'gojek_tokens.json');
 
 const BASE_HEADERS = {
   'Content-Type': 'application/json',
@@ -34,8 +34,8 @@ const BASE_HEADERS = {
 function loadCapturedHeaders() {
   try {
     const data = JSON.parse(fs.readFileSync(CAPTURED_HEADERS_FILE, 'utf8'));
-    // Find goid.gojekapi.com headers
-    const goidData = data['goid.gojekapi.com'] || Object.values(data)[0];
+    // Find accounts.goto-products.com headers
+    const goidData = data['accounts.goto-products.com'] || Object.values(data)[0];
     if (goidData && goidData.headers) {
       console.log('[+] Loaded captured headers from proxy session');
       return goidData.headers;
@@ -114,7 +114,7 @@ async function requestOTP(phoneNumber) {
     phone_number: phoneNumber,
   };
 
-  const result = await makeRequest('POST', '/goid/login/request', body, headers);
+  const result = await makeRequest('POST', '/goto-auth/login/methods', body, headers);
   
   console.log('\n[*] Response:');
   console.log(JSON.stringify(result.data, null, 2));
@@ -153,7 +153,7 @@ async function verifyOTP(otpToken, otpCode) {
     scopes: [],
   };
 
-  const result = await makeRequest('POST', '/goid/token', body, headers);
+  const result = await makeRequest('POST', '/goto-auth/token', body, headers);
   
   console.log('\n[*] Response:');
   console.log(JSON.stringify(result.data, null, 2));

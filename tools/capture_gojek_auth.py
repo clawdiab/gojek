@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 from mitmproxy import http
 
-OUTPUT_FILE = os.path.expanduser("~/gojek/gojek_captured_headers.json")
+OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "gojek_captured_headers.json")
 
 class GojekHeaderCapture:
     def __init__(self):
@@ -18,7 +18,7 @@ class GojekHeaderCapture:
         
     def response(self, flow: http.HTTPFlow):
         # Capture responses from Gojek API
-        if "gojekapi.com" in flow.request.host or "go-jek.com" in flow.request.host:
+        if "gojekapi.com" in flow.request.host or "go-jek.com" in flow.request.host or "accounts.goto-products.com" in flow.request.host:
             headers = dict(flow.request.headers)
             
             # Extract relevant auth headers

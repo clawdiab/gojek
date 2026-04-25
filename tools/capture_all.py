@@ -4,7 +4,6 @@ Captures all auth-related domains including goto-products.com, gopayapi.com, goi
 """
 import json
 import os
-import sys
 from datetime import datetime
 from mitmproxy import http
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Gojek has migrated authentication from `goid.gojekapi.com` to `accounts.goto-products.com`. This document describes the new authentication flows based on captured iOS traffic from Gojek app v5.57.1.
+Gojek has migrated authentication from `goid.gojekapi.com` to `accounts.goto-products.com`. This document describes the new authentication flows based on captured iOS traffic from Gojek app v5.57.2.
 
 ## Base URL
 
@@ -416,7 +416,7 @@ const response = await auth.getLoginMethods(phoneNumber, countryCode, { X_E1 });
 ## SDK Usage
 
 ```javascript
-const { AuthApi, createIOSDeviceConfig } = require('@clawdiab/gojek-auth');
+const { AuthApi, createIOSDeviceConfig } = require('@mychaelgo/gojek-auth');
 
 // Create API instance
 const device = createIOSDeviceConfig();
