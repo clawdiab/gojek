@@ -420,7 +420,9 @@ const { AuthApi, createIOSDeviceConfig } = require('@mychaelgo/gojek-auth');
 
 // Create API instance
 const device = createIOSDeviceConfig();
-const auth = new AuthApi(device);
+const CLIENT_ID = process.env.GOJEK_CLIENT_ID || 'gojek:consumer:app';
+const CLIENT_SECRET = process.env.GOJEK_CLIENT_SECRET;
+const auth = new AuthApi(device, CLIENT_ID, CLIENT_SECRET);
 
 // Get login methods (requires X-E1 from captured traffic)
 const methods = await auth.getLoginMethods('<PHONE_NUMBER>', '+62', { X_E1: capturedXE1 });

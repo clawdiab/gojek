@@ -18,7 +18,7 @@ class GojekHeaderCapture:
         
     def response(self, flow: http.HTTPFlow):
         # Capture responses from Gojek API
-        if "gojekapi.com" in flow.request.host or "go-jek.com" in flow.request.host or "accounts.goto-products.com" in flow.request.host:
+        if "gojekapi.com" in flow.request.host or "go-jek.com" in flow.request.host or "accounts.goto-products.com" in flow.request.host or "goto-products.com" in flow.request.host:
             headers = dict(flow.request.headers)
             
             # Extract relevant auth headers
@@ -29,12 +29,24 @@ class GojekHeaderCapture:
                     auth_headers[key] = value
             
             if auth_headers:
+                # Redact PII from body before saving
+                body_text = flow.request.text if flow.request.text else None
+                if body_text:
+                    import re
+                    # Redact phone numbers
+                    body_text = re.sub(r'"phone_number"\s*:\s*"\d+"', '"phone_number":"***"', body_text)
+                    # Redact OTP codes
+                    body_text = re.sub(r'"otp"\s*:\s*"\d+"', '"otp":"***"', body_text)
+                    # Redact tokens
+                    body_text = re.sub(r'"otp_token"\s*:\s*"[^"]+"', '"otp_token":"***"', body_text)
+                    body_text = re.sub(r'"client_secret"\s*:\s*"[^"]+"', '"client_secret":"***"', body_text)
+                
                 self.captured[flow.request.host] = {
                     "timestamp": datetime.now().isoformat(),
                     "url": flow.request.url,
                     "method": flow.request.method,
                     "headers": auth_headers,
-                    "body": flow.request.text if flow.request.text else None
+                    "body": body_text
                 }
                 
                 # Save to file

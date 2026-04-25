@@ -128,6 +128,9 @@ function createAndroidDeviceConfig() {
  */
 class AuthApi {
     constructor(deviceConfig, clientId = exports.DEFAULT_CLIENT_ID, clientSecret = '', basePath = exports.BASE_PATH) {
+        if (!clientSecret) {
+            throw new Error('clientSecret is required and must not be empty. Obtain it from the Gojek APK.');
+        }
         this.deviceConfig = deviceConfig || createIOSDeviceConfig();
         this.clientId = clientId;
         this.clientSecret = clientSecret;

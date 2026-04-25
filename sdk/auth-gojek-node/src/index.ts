@@ -213,6 +213,9 @@ export class AuthApi {
     clientSecret: string = '',
     basePath: string = BASE_PATH
   ) {
+    if (!clientSecret) {
+      throw new Error('clientSecret is required and must not be empty. Obtain it from the Gojek APK.');
+    }
     this.deviceConfig = deviceConfig || createIOSDeviceConfig();
     this.clientId = clientId;
     this.clientSecret = clientSecret;

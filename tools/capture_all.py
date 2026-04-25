@@ -28,7 +28,7 @@ class CaptureAll:
                     self.captured = json.load(f)
                 self.count = len(self.captured)
                 print(f"[*] Loaded {self.count} existing captures", flush=True)
-            except:
+            except (json.JSONDecodeError, OSError):
                 pass
         print("[*] Capture addon loaded (all auth domains)!", flush=True)
         
@@ -46,10 +46,10 @@ class CaptureAll:
         body_text = None
         try:
             body_text = flow.request.text if flow.request.text else None
-        except:
+        except (AttributeError, UnicodeDecodeError, ValueError):
             try:
                 body_text = flow.request.content.hex() if flow.request.content else None
-            except:
+            except (AttributeError, UnicodeDecodeError, ValueError):
                 pass
         
         with open(ALL_LOG, 'a') as f:

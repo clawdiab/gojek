@@ -1,7 +1,7 @@
 /**
  * Gojek Authentication Example - SSO Login
  * 
- * SSO login uses device-based authentication and only requires X-M1 header.
+ * SSO login uses device-based authentication and requires X-M1 header; X-E1 may also be required.
  * This works if your device is already registered with Gojek.
  * 
  * Usage:

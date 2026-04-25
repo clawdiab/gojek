@@ -1,5 +1,7 @@
 {
-  "dependencies": {
+  "name": "gojek-tools",
+  "private": true,
+  "devDependencies": {
     "dotenv": "^17.4.2"
   }
 }

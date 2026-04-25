@@ -99,7 +99,7 @@ The iOS app uses a different authentication flow than Android. Key differences:
 **Request Body:**
 ```json
 {
-  "flow": "login",
+  "flow": "login_1fa",
   "client_id": "gojek:consumer:app",
   "verification_id": "<from login/methods>",
   "verification_method": "otp_sms",
@@ -127,15 +127,15 @@ The iOS app uses a different authentication flow than Android. Key differences:
 **Request Body:**
 ```json
 {
-  "flow": "login",
-  "verification_method": "otp_sms",
+  "client_id": "gojek:consumer:app",
+  "verification_id": "<from login/methods>",
+  "client_secret": "<YOUR_CLIENT_SECRET>",
+  "flow": "login_1fa",
+  "verification_method": "OTP_SMS",
   "data": {
     "otp": "1234",
     "otp_token": "<from cvs/initiate>"
-  },
-  "client_id": "gojek:consumer:app",
-  "verification_id": "<from login/methods>",
-  "client_secret": "<YOUR_CLIENT_SECRET>"
+  }
 }
 ```
 
